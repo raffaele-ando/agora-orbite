@@ -36,8 +36,8 @@ incrociano mai e le distanze relative restano costanti.
 Il numero di anelli, i raggi, la dimensione dei chip e quanti token stanno su
 ciascun anello vengono **ricalcolati a ogni resize** partendo dal viewport: la
 stessa scena regge il desktop orizzontale e il telefono verticale senza rimpicciolire
-tutto. Su desktop 1440×900 vengono fuori 3 orbite e 33 posizioni; su un telefono
-390×844 due orbite (atenei fuori, bandiere dentro) e 16 posizioni.
+tutto. Su desktop 1440×900 vengono fuori 3 orbite e 20 posizioni; su un telefono
+390×844 due orbite (atenei fuori, bandiere dentro) e 14 posizioni.
 
 Le sovrapposizioni non sono stimate a occhio. `fitsOnRing` e `ringsCompatible`
 in `assets/js/orbits.js` verificano numericamente che due riquadri non si
@@ -213,13 +213,32 @@ I tredici file in pagina pesano 433 KB, 186 KB con gzip.
 
 ## Bandiere
 
-Le bandiere di regioni e capoluoghi restano su URL di Wikimedia Commons: non
-esistono raccolte locali (né su npm né su GitHub) delle bandiere regionali
-italiane. Se una non carica, il token viene rimosso dal giro e le posizioni si
-ridistribuiscono, senza icone rotte.
+In scena ci sono **solo i luoghi di questi atenei**, non un campionario d'Italia:
 
-Per averle in locale servono i file: mettili in `assets/bandiere/` e sostituisci
-gli `src` in `index.html`.
+| | |
+| --- | --- |
+| Milano · Lombardia | Politecnico, Bocconi, La Statale, Cattolica, Bicocca, IULM, San Raffaele, Humanitas |
+| Roma · Lazio | LUISS, Sapienza |
+| Torino · Piemonte | Politecnico di Torino, Università di Torino |
+| Liguria | Università di Genova |
+
+Sarebbero otto bandiere, ma sono sette: **Genova non c'è perché è la stessa
+bandiera di Milano** — la croce di San Giorgio, rossa in campo bianco — e di due
+copie identiche se ne tiene una. Fra le due il posto va a Milano, dove stanno
+otto dei tredici atenei; per invertire la scelta basta cambiare l'`src` di quel
+token. La Liguria invece resta, perché la sua bandiera non è la croce: è a bande
+verticali verde, rossa e azzurra con la caravella dello stemma regionale.
+
+Via, per lo stesso criterio, Veneto, Toscana, Emilia-Romagna, Campania, Puglia e
+Sicilia con Napoli, Firenze, Bologna, Palermo, Bari e Cagliari: nessuno dei
+tredici atenei sta lì.
+
+I file restano su URL di Wikimedia Commons: non esistono raccolte locali (né su
+npm né su GitHub) delle bandiere regionali e comunali italiane, e da qui non si
+possono scaricare — il proxy di rete blocca Wikimedia. Se una non carica, il
+token viene rimosso dal giro e le posizioni si ridistribuiscono, senza icone
+rotte. Per averle in locale: mettile in `assets/bandiere/` e sostituisci gli
+`src` in `index.html`.
 
 ## Accessibilità e prestazioni
 
@@ -242,10 +261,10 @@ gli `src` in `index.html`.
   lato: a 320 px tutti e cinque i tasti restano visibili e cliccabili (26 px di
   altezza minima).
 - Senza JavaScript la pagina resta leggibile: marchio in alto e loghi incolonnati sotto.
-- Al primo caricamento arrivano **50 KB su telefono** e 148 KB su desktop (fino
-  al momento in cui parte l'apertura): i token non ancora in scena sono `lazy`.
-  Quando tutti e 33 sono passati davanti all'occhio si arriva a circa 630 KB,
-  di cui 547 KB di immagini.
+- Al primo caricamento arrivano **47 KB** fino al momento in cui parte
+  l'apertura, sia su telefono sia su desktop: i token non ancora in scena sono
+  `lazy`. Quando tutti e 20 sono passati davanti all'occhio si arriva a circa
+  640 KB, di cui 558 KB di immagini — sono i loghi, non le bandiere.
 
 I 13 file dei loghi in pagina pesano 433 KB, che con gzip diventano 186 KB: se
 il server sa comprimere, vale la pena attivarlo. Gli SVG sono la parte che ci
