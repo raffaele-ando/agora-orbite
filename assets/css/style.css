@@ -224,15 +224,15 @@ a:hover { color: var(--arancio-cupo); }
 
 .portal { display: none; }
 
-/* Il velo esiste solo con JavaScript attivo e movimento consentito.
-   Il fondo scuro è sul contenitore, così copre lo schermo già al primo
-   disegno, prima che lo script calcoli il ritaglio del vano. */
+/* L'apertura esiste solo con JavaScript attivo e movimento consentito.
+   Il fondo è sul contenitore, identico a quello della scena, così copre lo
+   schermo già al primo disegno, prima che lo script calcoli il ritaglio. */
 .has-portal .portal {
   display: block;
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: var(--inchiostro);
+  background: radial-gradient(120% 90% at 50% 50%, var(--crema-chiara) 0%, var(--crema-scura) 100%);
   overflow: hidden;
 }
 

@@ -21,20 +21,24 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
 </head>
 <body>
 
-<!-- Apertura: la porta del brandmark si allarga e scopre il sito -->
+<!-- Apertura: le porte del brandmark sfilano una dopo l'altra e scoprono il sito -->
 <div class="portal" id="portal" aria-hidden="true">
   <svg class="portal__svg" id="portal-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-    <path class="portal__veil" id="portal-veil" fill="#111111" fill-rule="evenodd"></path>
-    <!-- Tappo: tiene chiuso il vano finché la porta non inizia ad aprirsi,
-         così durante la posa il marchio si legge come nel logo. Il contorno
-         dello stesso colore copre la cucitura col bordo del velo. -->
-    <path class="portal__plug" id="portal-plug" fill="#111111" stroke="#111111" stroke-width="2"></path>
-    <g id="portal-bars" fill="#F4F1EA">
-      <path class="portal__bar" opacity="0"></path>
-      <path class="portal__bar" opacity="0"></path>
-      <path class="portal__bar" opacity="0"></path>
-      <path class="portal__bar" opacity="0"></path>
-      <path class="portal__bar" opacity="0"></path>
+    <defs>
+      <!-- Lo stesso fondo della scena: il bordo della finestra non si vede
+           come un salto di tono, resta visibile solo il nero delle porte. -->
+      <radialGradient id="portal-bg" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1">
+        <stop offset="0" stop-color="#F4F1EA"/>
+        <stop offset="1" stop-color="#EAE0D0"/>
+      </radialGradient>
+    </defs>
+    <path class="portal__veil" id="portal-veil" fill="url(#portal-bg)" fill-rule="evenodd"></path>
+    <g id="portal-bars" fill="#111111">
+      <path class="portal__bar"></path>
+      <path class="portal__bar"></path>
+      <path class="portal__bar"></path>
+      <path class="portal__bar"></path>
+      <path class="portal__bar"></path>
     </g>
   </svg>
 </div>

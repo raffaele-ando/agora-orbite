@@ -1,16 +1,20 @@
-/* Agorà — apertura del sito attraverso il brandmark.
+/* Agorà — apertura del sito: le porte del brandmark, una dopo l'altra.
  *
- * Il marchio al centro di "Agorà" è una pila di cinque archi concentrici: una
- * porta. All'ingresso quella porta si apre. Gli archi compaiono piccoli al
- * centro su fondo scuro, uno dopo l'altro dall'interno verso l'esterno,
- * crescono fino alla dimensione del marchio, poi si allargano accelerando
- * finché superano lo schermo: il sito si vede solo attraverso il vano
- * dell'arco più interno, che diventa la finestra.
+ * Il marchio al centro di "Agorà" è una pila di cinque archi concentrici:
+ * cinque porte. All'ingresso le attraversiamo una alla volta. Su fondo crema,
+ * ogni porta nasce piccola al centro, si allarga accelerando ed esce dallo
+ * schermo; la successiva parte mentre la precedente è ancora in volo, così una
+ * porta segue l'altra come in un corridoio.
+ *
+ * Le porte partono dalla più esterna alla più interna. L'ultima a partire è
+ * quella interna, il vano vero del marchio: è la sua apertura a fare da
+ * finestra sul sito. Cresce senza mai richiudersi e finisce l'apertura, e il
+ * bordo della finestra coincide sempre col suo arco nero, che lo nasconde.
  *
  * La geometria non è ridisegnata a occhio: è misurata da assets/img/agora-logo.png
- * e riprodotta con archi di cerchio esatti. Riferimento: origine nel punto in cui
- * il cerchio che taglia le gambe degli archi tocca la linea di base del
- * logotipo; una unità = un pixel del PNG originale.
+ * e riprodotta con archi di cerchio esatti (vedi assets/img/brandmark.md).
+ * Riferimento: origine nel punto in cui il cerchio che taglia le gambe degli
+ * archi tocca la linea di base del logotipo; una unità = un pixel del PNG.
  */
 (function () {
   'use strict';
@@ -24,25 +28,27 @@
     { cx:  0.185, cy: -96.026, ro:  65.143, ri:  57.311 },
     { cx: -0.339, cy: -94.476, ro:  40.294, ri:  32.453 }
   ];
-  var MARK_W = 288.02;          // larghezza del marchio, in unità
-  var MARK_CX = -0.004;         // centro del riquadro del marchio
-  var MARK_CY = -122.451;
-  var DOOR = ARCHES[4];         // il vano dell'arco interno è la porta
-  var DOOR_DOWN = 91.2;         // quanto scende il vano sotto il proprio centro
+  var LAUNCH = [0, 1, 2, 3, 4]; // ordine di partenza: dalla più esterna alla più interna
+  var DOOR = LAUNCH[LAUNCH.length - 1];   // l'ultima porta fa da finestra
+  var DOOR_DOWN = 91.2;         // quanto scende quel vano sotto il proprio centro
 
   // --- tempi (ms) ----------------------------------------------------------
-  var T_GROW = 780;             // comparsa e crescita fino alla dimensione del marchio
-  var T_HOLD = 240;             // pausa: il marchio si legge
-  var T_OPEN = 1120;            // apertura accelerata oltre i bordi
-  var TOTAL = T_GROW + T_HOLD + T_OPEN;
-  var STAGGER = 90;             // ritardo fra un arco e il successivo
+  // Il rapporto fra la scala di una porta e quella della successiva è
+  // (scalaFinale/scalaIniziale)^(T_STAGGER/T_TRAVEL): con questi valori vale
+  // circa 1,6, cioè in scena stanno tutte e cinque le porte annidate, con le
+  // proporzioni del marchio.
+  var T_STAGGER = 170;          // distanza fra una porta e la successiva
+  var T_TRAVEL = 1300;          // volo di ogni porta, dal centro fuori campo
+  var T_FADE = 260;             // comparsa di ogni porta
+  var START_PX = 44;            // larghezza in pixel con cui una porta nasce
+  var TOTAL = T_STAGGER * (LAUNCH.length - 1) + T_TRAVEL + 60;
 
   var host = document.getElementById('portal');
   var svg  = document.getElementById('portal-svg');
   var veil = document.getElementById('portal-veil');
-  var plug = document.getElementById('portal-plug');
+  var grad = document.getElementById('portal-bg');
   var barEls = host ? [].slice.call(host.querySelectorAll('.portal__bar')) : [];
-  if (!host || !svg || !veil || !plug || barEls.length !== ARCHES.length) return;
+  if (!host || !svg || !veil || !grad || barEls.length !== LAUNCH.length) return;
 
   function finish() {
     if (!host) return;
@@ -54,10 +60,9 @@
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return; }
 
   // --- costruzione dei tracciati -------------------------------------------
-  // Generati direttamente in coordinate schermo: solo linee e archi di
-  // cerchio, nessuna approssimazione con curve.
   function cutY(dx) { return CUT_CY + Math.sqrt(Math.max(0, CUT_R * CUT_R - dx * dx)); }
   function n2(v) { return Math.round(v * 100) / 100; }
+  function clamp01(t) { return t < 0 ? 0 : (t > 1 ? 1 : t); }
 
   function builder(s, px, py) {
     function X(x) { return n2(px + x * s); }
@@ -84,44 +89,25 @@
            b.L(xiL, cutY(xiL)) + b.cut(xoL, cutY(xoL)) + 'Z';
   }
 
-  function doorPath(b) {
-    var xL = DOOR.cx - DOOR.ri, xR = DOOR.cx + DOOR.ri;
-    return b.M(xL, cutY(xL)) + b.L(xL, DOOR.cy) + b.top(DOOR.cx, DOOR.cy, DOOR.ri, +1) +
+  function doorPath(a, b) {
+    var xL = a.cx - a.ri, xR = a.cx + a.ri;
+    return b.M(xL, cutY(xL)) + b.L(xL, a.cy) + b.top(a.cx, a.cy, a.ri, +1) +
            b.L(xR, cutY(xR)) + b.cut(xL, cutY(xL)) + 'Z';
   }
 
-  // --- animazione ----------------------------------------------------------
-  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
-  function easeIn(t) { return Math.pow(t, 2.4); }
-  function clamp01(t) { return t < 0 ? 0 : (t > 1 ? 1 : t); }
-
-  var elapsed = 0, last = 0, speed = 1, raf = 0, cleared = false, plugGone = false;
-  var barDone = [false, false, false, false, false];
-
-  // Frazione di apertura già percorsa (0 durante crescita e posa).
-  function openProgress(t) {
-    return clamp01((t - T_GROW - T_HOLD) / T_OPEN);
+  // Ogni porta è centrata sullo schermo e cresce di scala. La crescita è
+  // esponenziale: a velocità relativa costante, come un oggetto che ci viene
+  // incontro, e non "parte piano e poi scatta".
+  function scaleAt(a, u, halfDiag) {
+    var s0 = START_PX / (2 * a.ro);
+    var s1 = (halfDiag / a.ri) * 1.15;      // abbastanza per uscire di scena
+    return s0 * Math.pow(s1 / s0, clamp01(u / T_TRAVEL));
   }
 
-  // Il punto che resta al centro dello schermo. A riposo è il centro ottico del
-  // marchio, così si legge come nel logo; aprendosi diventa il centro del vano,
-  // perché la finestra cresca simmetrica sullo schermo.
-  function anchor(t) {
-    var k = easeOut(clamp01(openProgress(t) / 0.28));
-    return { x: MARK_CX + (DOOR.cx - MARK_CX) * k, y: MARK_CY + (DOOR.cy - MARK_CY) * k };
-  }
-
-  function scaleFor(t, W, H) {
-    var target = Math.max(150, Math.min(Math.min(W, H) * 0.30, 340));
-    var sLogo = target / MARK_W;                 // il marchio alla sua misura
-    var sStart = sLogo * 0.05;                   // piccolo al centro
-    // apertura finale: il vano deve contenere tutto il viewport, angoli compresi
-    var need = Math.max(Math.sqrt(W * W + H * H) / 2 / DOOR.ri, (H / 2) / DOOR_DOWN);
-    var sEnd = need * 1.35;   // margine: la porta esce di scena, non si limita a combaciare
-
-    if (t < T_GROW) return sStart + (sLogo - sStart) * easeOut(t / T_GROW);
-    return sLogo + (sEnd - sLogo) * easeIn(openProgress(t));
-  }
+  // --- ciclo ---------------------------------------------------------------
+  var elapsed = 0, last = 0, speed = 1, raf = 0;
+  var cleared = false, released = false, vbW = 0, vbH = 0;
+  var barGone = [false, false, false, false, false];
 
   function frame(now) {
     if (!host) return;
@@ -130,50 +116,50 @@
     last = now;
 
     var W = window.innerWidth, H = window.innerHeight;
-    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    if (vbW !== W || vbH !== H) {
+      svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+      // Lo stesso sfondo della scena, così il bordo della finestra non si vede
+      // come un salto di tono: resta visibile solo il nero delle porte.
+      grad.setAttribute('gradientTransform',
+        'translate(' + (W / 2) + ' ' + (H / 2) + ') scale(' + (W * 1.2) + ' ' + (H * 0.9) + ')');
+      vbW = W; vbH = H;
+      barGone = [false, false, false, false, false];
+    }
+    var halfDiag = Math.sqrt(W * W + H * H) / 2;
 
-    var s = scaleFor(elapsed, W, H);
-    var a = anchor(elapsed);
-    var px = W / 2 - a.x * s;
-    var py = H / 2 - a.y * s;
-    var b = builder(s, px, py);
-
-    // Velo scuro col vano ritagliato: un solo tracciato, fill-rule evenodd.
-    // Il rettangolo copre esattamente il viewport e nulla di più: ridisegnare
-    // ogni fotogramma un rettangolo più grande costa, e non servirebbe.
-    veil.setAttribute('d', 'M-1 -1H' + (W + 1) + 'V' + (H + 1) + 'H-1Z' + doorPath(b));
-
-    // Il tappo si toglie quando la porta è già in movimento, con una
-    // dissolvenza breve: a mezza opacità sul crema risulterebbe grigiastro.
-    // Finito il suo compito esce dal disegno, per non pesare sui fotogrammi.
-    var plugOp = 1 - clamp01((openProgress(elapsed) - 0.05) / 0.09);
-    if (plugOp > 0) {
-      plug.setAttribute('d', doorPath(b));
-      plug.setAttribute('opacity', plugOp.toFixed(3));
-    } else if (!plugGone) {
-      plug.setAttribute('d', '');
-      plugGone = true;
+    // Le porte: la prima partita è la più grande, quindi va disegnata per
+    // ultima, sopra le altre.
+    var revealS = 0;
+    for (var n = 0; n < LAUNCH.length; n++) {
+      var a = ARCHES[LAUNCH[n]];
+      var el = barEls[LAUNCH.length - 1 - n];
+      var u = elapsed - n * T_STAGGER;
+      if (u <= 0) continue;
+      var s = scaleAt(a, u, halfDiag);
+      if (LAUNCH[n] === DOOR) revealS = s;
+      if (barGone[n]) continue;
+      if (a.ri * s > halfDiag * 1.12) { el.setAttribute('d', ''); barGone[n] = true; continue; }
+      var b = builder(s, W / 2 - a.cx * s, H / 2 - a.cy * s);
+      el.setAttribute('d', archPath(a, b));
+      el.setAttribute('opacity', clamp01(u / T_FADE).toFixed(3));
     }
 
-    // Gli archi compaiono dall'interno verso l'esterno. Quando il raggio
-    // interno di un arco ha superato lo schermo, l'arco non è più visibile:
-    // si smette di ridisegnarlo.
-    var reach = Math.sqrt(W * W + H * H) / 2 + 4;
-    for (var i = 0; i < ARCHES.length; i++) {
-      if (barDone[i]) continue;
-      if (ARCHES[i].ri * s > reach) { barEls[i].setAttribute('d', ''); barDone[i] = true; continue; }
-      barEls[i].setAttribute('d', archPath(ARCHES[i], b));
-      var appear = clamp01((elapsed - (ARCHES.length - 1 - i) * STAGGER) / 320);
-      barEls[i].setAttribute('opacity', easeOut(appear).toFixed(3));
+    // La finestra: il vano dell'arco più interno. Quando ha superato lo
+    // schermo il velo non serve più e la pagina torna interattiva.
+    var d = ARCHES[DOOR];
+    if (revealS * d.ri > halfDiag && revealS * DOOR_DOWN > H / 2) {
+      if (!released) {
+        veil.setAttribute('d', '');
+        host.style.pointerEvents = 'none';
+        document.documentElement.classList.remove('is-opening');
+        released = true;
+      }
+    } else {
+      var bd = builder(revealS, W / 2 - d.cx * revealS, H / 2 - d.cy * revealS);
+      veil.setAttribute('d', 'M-1 -1H' + (W + 1) + 'V' + (H + 1) + 'H-1Z' + doorPath(d, bd));
     }
 
     if (!cleared) { host.style.background = 'transparent'; cleared = true; }
-
-    // ultimo tratto: dissolvenza di sicurezza se restasse un angolo scoperto
-    if (elapsed > TOTAL - 200) {
-      veil.setAttribute('opacity', clamp01((TOTAL - elapsed) / 200).toFixed(3));
-    }
-
     if (elapsed >= TOTAL) { finish(); return; }
     raf = requestAnimationFrame(frame);
   }
