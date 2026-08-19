@@ -12,9 +12,28 @@
 <link rel="preconnect" href="https://upload.wikimedia.org" crossorigin>
 <script>
 /* Il velo d'apertura esiste solo se c'è JavaScript e il movimento è consentito:
-   senza JS la pagina resta accessibile e non c'è nulla da chiudere. */
+   senza JS la pagina resta accessibile e non c'è nulla da chiudere.
+
+   Questo blocco gira prima che il corpo sia disegnato, e deve farlo: il velo lo
+   mette in pagina il selettore, che è differito, quindi per un centinaio di
+   millisecondi la pagina esisterebbe senza niente sopra e si vedrebbe il
+   fallback — loghi e bandiere incolonnati. Il fondo d'attesa (.ground) copre lo
+   schermo dal primo disegno; il selettore lo toglie appena il velo ha
+   disegnato il suo primo fotogramma. Serve anche il nome del design scelto,
+   perché il primo ha il fondo scuro e gli altri crema: il colore sbagliato
+   sarebbe un lampo di crema prima del nero. */
 if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  document.documentElement.className += ' has-portal';
+  var radice = document.documentElement;
+  radice.className += ' has-portal';
+  var scelta = null;
+  try { scelta = localStorage.getItem('agora:apertura'); } catch (e) {}
+  radice.setAttribute('data-apertura', scelta || 'tunnel-archi');
+  /* Rete di sicurezza: se il selettore non arriva — script bloccato, errore —
+     il fondo d'attesa non deve restare a coprire la pagina per sempre. */
+  setTimeout(function () {
+    var g = document.querySelector('.ground');
+    if (g && g.parentNode) g.parentNode.removeChild(g);
+  }, 8000);
 }
 /* Registro dei design d'apertura: i file in assets/js/aperture/ si iscrivono
    qui, il selettore in assets/js/intro.js ne avvia uno. */
@@ -23,6 +42,10 @@ window.AgoraAperture = { items: {}, register: function (id, fn) { this.items[id]
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+
+<!-- Fondo d'attesa: copre la pagina dal primo disegno fino al primo fotogramma
+     dell'apertura. Senza JavaScript non compare affatto. -->
+<div class="ground" aria-hidden="true"></div>
 
 <!-- I quattro design d'apertura. Ogni template è il markup del velo così
      com'era al proprio commit; il selettore ne clona uno e avvia lo script

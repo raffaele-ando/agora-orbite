@@ -125,6 +125,29 @@ Senza JavaScript, o con `prefers-reduced-motion: reduce`, l'apertura non esiste
 affatto: la pagina si presenta già aperta. In quel caso non compare nemmeno la
 barra, perché non c'è niente da mettere in scena.
 
+### Il fondo d'attesa
+
+Il velo lo mette in pagina il selettore, che è uno script differito: per un
+centinaio di millisecondi la pagina esisterebbe senza niente sopra, e si
+vedrebbe il fallback — loghi e bandiere incolonnati — prima che l'apertura
+parta. (Nelle versioni di un solo design il problema non c'era: il velo stava
+scritto in `index.html`.)
+
+Perciò `index.html` porta un `<div class="ground">` che copre lo schermo dal
+primo disegno, e il blocco di script nell'`<head>` — che gira prima che il corpo
+sia dipinto — gli dà il colore giusto leggendo la scelta da `localStorage`: nero
+per «Marchio», crema per gli altri tre, perché il colore sbagliato sarebbe un
+lampo di crema prima del nero. Il selettore lo rimuove **nello stesso
+fotogramma** in cui il velo disegna la prima volta: `run()` ha già chiesto il
+suo `requestAnimationFrame`, quindi quello del selettore arriva subito dopo, e
+davanti non c'è mai né il fallback né un fondo pieno al posto del sito. Se il
+selettore non arrivasse affatto — script bloccato, errore — un timeout di 8 s
+toglie il fondo comunque, così la pagina non resta coperta.
+
+Verificato sui fotogrammi veri del compositore (screencast CDP, non screenshot):
+nelle otto combinazioni di quattro design × due viewport nessun fotogramma
+mostra i chip del fallback, mentre la versione di prima ne mostra due.
+
 ## Loghi
 
 Vengono usati **i file originali caricati dall'utente** (`project/uploads/loghi_universita/`),
@@ -151,10 +174,10 @@ gli `src` in `index.html`.
   regime, con tutte e quattro le aperture (mediana a 16,7 ms; 95° percentile a
   16,8 ms passati i primi 300 ms). Un solo ciclo `requestAnimationFrame` che
   scrive esclusivamente `transform` e `opacity`, senza letture del layout.
-- Resta **un solo fotogramma lungo** al primo disegno — circa 0,6 s su un
-  telefono con CPU rallentata 6× — speso in parsing e decodifica delle immagini.
-  C'era già prima del selettore, con gli stessi valori: i quattro file delle
-  aperture (37 KB in tutto) non lo peggiorano in modo misurabile.
+- Resta **un fotogramma lungo** al primo disegno, speso in parsing e decodifica:
+  su un telefono con CPU rallentata 6× sta fra 33 e 233 ms, senza differenze
+  sistematiche fra il selettore e le versioni di un solo design — i quattro file
+  delle aperture (37 KB in tutto) non si sentono.
 - I quattro tracciati delle orbite stanno in **un solo SVG**, senza
   `will-change`. Come quattro elementi con bordo ellittico e `will-change`
   erano quattro texture GPU grandi come lo schermo: bastava un velo sopra per

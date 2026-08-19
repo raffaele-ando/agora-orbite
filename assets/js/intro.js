@@ -58,8 +58,24 @@
       if (portal) portal.classList.add('portal--' + current.ground);
       document.body.insertBefore(frag, document.body.firstChild);
       run();
+      // Il fondo d'attesa se ne va nello stesso fotogramma in cui il velo
+      // disegna per la prima volta: run() ha già chiesto il suo
+      // requestAnimationFrame, quindi questo arriva subito dopo il suo, prima
+      // che il fotogramma sia dipinto. Un istante prima e si vedrebbe il
+      // fallback, un istante dopo e il velo sarebbe già aperto su un fondo
+      // pieno invece che sul sito.
+      requestAnimationFrame(clearGround);
+    } else {
+      clearGround();
     }
     buildPicker();
+  } else {
+    clearGround();
+  }
+
+  function clearGround() {
+    var g = document.querySelector('.ground');
+    if (g && g.parentNode) g.parentNode.removeChild(g);
   }
 
   // --- la barra di scelta --------------------------------------------------

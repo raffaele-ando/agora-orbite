@@ -222,6 +222,25 @@ a:hover { color: var(--arancio-cupo); }
    Apertura: il velo di uno dei design in assets/js/aperture/
    ================================================================= */
 
+/* Fondo d'attesa. Copre lo schermo dal primo disegno, perché il velo lo mette
+   in pagina il selettore — che è differito — e senza questo si vedrebbe per un
+   istante il fallback con i loghi incolonnati. Sta sotto al velo e sopra alla
+   scena; il selettore lo rimuove nello stesso fotogramma in cui il velo
+   disegna, quindi non c'è nessun momento in cui si vedano entrambi. */
+.ground { display: none; }
+
+.has-portal .ground {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: radial-gradient(120% 90% at 50% 50%, var(--crema-chiara) 0%, var(--crema-scura) 100%);
+}
+
+/* Il primo design apre su fondo scuro: il colore va azzeccato subito, o al suo
+   posto si vede un lampo di crema. */
+.has-portal[data-apertura="marchio"] .ground { background: var(--inchiostro); }
+
 .portal { display: none; }
 
 /* L'apertura esiste solo con JavaScript attivo e movimento consentito.
