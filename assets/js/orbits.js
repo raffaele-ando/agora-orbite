@@ -35,9 +35,10 @@
   var scene = document.getElementById('scene');
   var field = document.getElementById('field');
   var orbitsBox = document.getElementById('orbits');
-  if (!scene || !field || !orbitsBox) return;
+  var orbitG = document.getElementById('orbits-g');
+  if (!scene || !field || !orbitsBox || !orbitG) return;
 
-  var orbitEls = Array.prototype.slice.call(orbitsBox.children);
+  var orbitEls = Array.prototype.slice.call(orbitsBox.querySelectorAll('.orbit'));
   var all = Array.prototype.slice.call(field.querySelectorAll('.token'));
   var logos = all.filter(function (el) { return el.dataset.kind === 'logo'; });
   var flags = all.filter(function (el) { return el.dataset.kind === 'flag'; });
@@ -305,14 +306,16 @@
     all.forEach(function (el) { el.hidden = true; });
     slots.forEach(function (s) { s.queue[s.index].hidden = false; });
 
+    // Il viewBox ha l'origine al centro della scena: le ellissi stanno in (0,0)
+    // e basta trasformare il gruppo. Si aggiorna solo quando la scena cambia
+    // dimensione, non a ogni fotogramma.
+    orbitsBox.setAttribute('viewBox', (-g.W / 2) + ' ' + (-g.H / 2) + ' ' + g.W + ' ' + g.H);
     orbitEls.forEach(function (el, i) {
       var r = rings[i];
-      if (!r) { el.style.display = 'none'; return; }
-      el.style.display = '';
-      el.style.width = (r.rx * 2) + 'px';
-      el.style.height = (r.ry * 2) + 'px';
-      el.style.margin = (-r.ry) + 'px 0 0 ' + (-r.rx) + 'px';
-      el.style.opacity = String(0.9 - i * 0.15);
+      if (!r) { el.setAttribute('rx', 0); el.setAttribute('ry', 0); el.setAttribute('opacity', 0); return; }
+      el.setAttribute('rx', r.rx.toFixed(1));
+      el.setAttribute('ry', r.ry.toFixed(1));
+      el.setAttribute('opacity', (0.13 - i * 0.018).toFixed(3));
     });
 
     render(elapsed);
@@ -328,11 +331,7 @@
     var breathe = 1 + BREATHE * Math.sin(t * 2 * Math.PI / BREATHE_PERIOD);
     var i, s;
 
-    for (i = 0; i < orbitEls.length; i++) {
-      if (rings[i]) {
-        orbitEls[i].style.transform = 'rotate(' + TILT + 'deg) scale(' + breathe.toFixed(4) + ')';
-      }
-    }
+    orbitG.setAttribute('transform', 'rotate(' + TILT + ') scale(' + breathe.toFixed(4) + ')');
 
     for (i = 0; i < slots.length; i++) {
       s = slots[i];

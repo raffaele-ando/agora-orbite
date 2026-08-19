@@ -7,8 +7,11 @@ dipendenza da CDN.
 ```
 index.html
 assets/css/style.css
+assets/js/intro.js        apertura: la porta del brandmark scopre il sito
 assets/js/orbits.js       motore delle orbite (vanilla JS, ~9 KB)
 assets/img/agora-logo.png
+assets/img/brandmark.svg  la "o" di Agorà come vettore autonomo
+assets/img/brandmark.md   geometria misurata del brandmark, con i numeri
 assets/loghi/             loghi degli atenei, originali, ottimizzati con svgo
 project/                  bundle originale di Claude Design (sorgente del design)
 chats/                    trascrizioni della progettazione
@@ -48,6 +51,25 @@ Il velo dietro al marchio riprende esattamente lo stesso sfondo della scena e lo
 sfuma con una maschera: i token che passano dietro spariscono prima di toccare
 la scritta, e il velo stesso resta invisibile.
 
+## L'apertura
+
+All'ingresso il brandmark stesso apre il sito. La "o" di Agorà è una pila di
+cinque archi concentrici, cioè una porta: gli archi compaiono piccoli al centro
+su fondo scuro, uno dopo l'altro dall'interno verso l'esterno, crescono fino
+alla dimensione del marchio, restano un istante, poi si allargano accelerando
+finché escono dallo schermo. Il sito si vede solo attraverso il vano dell'arco
+più interno, che diventa la finestra. Durata 2,1 s; un tocco, un tasto o uno
+scroll la accorciano.
+
+La geometria del marchio non è ridisegnata a occhio: è **misurata** dal
+logotipo originale con precisione subpixel e riprodotta con archi di cerchio
+esatti — i numeri e il metodo sono in `assets/img/brandmark.md`, il vettore in
+`assets/img/brandmark.svg`. L'animazione genera i tracciati da quella
+geometria, quindi a qualunque scala la porta è la "o" del logo.
+
+Senza JavaScript, o con `prefers-reduced-motion: reduce`, l'apertura non esiste
+affatto: la pagina si presenta già aperta.
+
 ## Loghi
 
 Vengono usati **i file originali caricati dall'utente** (`project/uploads/loghi_universita/`),
@@ -70,8 +92,14 @@ gli `src` in `index.html`.
 
 ## Accessibilità e prestazioni
 
-- 60 fps stabili anche con CPU rallentata 6×: un solo ciclo `requestAnimationFrame`
-  che scrive esclusivamente `transform` e `opacity`, senza letture del layout.
+- 60 fps stabili anche con CPU rallentata 6×, sia durante l'apertura sia in
+  regime (misurati a 1920×1080 con densità 2×: mediana e 95° percentile a
+  16,7 ms). Un solo ciclo `requestAnimationFrame` che scrive esclusivamente
+  `transform` e `opacity`, senza letture del layout.
+- I quattro tracciati delle orbite stanno in **un solo SVG**, senza
+  `will-change`. Come quattro elementi con bordo ellittico e `will-change`
+  erano quattro texture GPU grandi come lo schermo: bastava un velo sopra per
+  far scendere il frame rate a 20 fps.
 - L'animazione si ferma quando la scheda non è visibile.
 - `prefers-reduced-motion: reduce` → scena statica, tutti i token al loro posto.
 - Senza JavaScript la pagina resta leggibile: marchio in alto e loghi incolonnati sotto.

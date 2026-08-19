@@ -134,15 +134,11 @@ a:hover { color: var(--arancio-cupo); }
 .orbits,
 .veil { display: none; }
 
-.orbit {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  border: 1px dashed rgba(17, 17, 17, 0.12);
-  border-radius: 50%;
-  transform-origin: center center;
-  will-change: transform;
-}
+/* Nessun will-change: promuovere questi tracciati a livello GPU crea texture
+   grandi come lo schermo e fa crollare il frame rate. */
+.orbit { stroke-width: 1; vector-effect: non-scaling-stroke; }
+
+#orbits-g { transform-origin: 0 0; }
 
 /* =================================================================
    Modalità orbitale: attivata da JS quando la scena è pronta
@@ -156,7 +152,15 @@ a:hover { color: var(--arancio-cupo); }
   height: 100dvh;
 }
 
-.scene.is-orbiting .orbits { display: block; }
+.scene.is-orbiting .orbits {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
 
 .scene.is-orbiting .field {
   position: absolute;
@@ -211,6 +215,35 @@ a:hover { color: var(--arancio-cupo); }
 /* --------------------------------------------------- movimento ridotto */
 
 @media (prefers-reduced-motion: reduce) {
-  .orbit { border-color: rgba(17, 17, 17, 0.10); }
   .scene.is-orbiting .token { will-change: auto; }
 }
+
+/* =================================================================
+   Apertura: la porta del brandmark scopre il sito
+   ================================================================= */
+
+.portal { display: none; }
+
+/* Il velo esiste solo con JavaScript attivo e movimento consentito.
+   Il fondo scuro è sul contenitore, così copre lo schermo già al primo
+   disegno, prima che lo script calcoli il ritaglio del vano. */
+.has-portal .portal {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--inchiostro);
+  overflow: hidden;
+}
+
+.portal__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Mentre la porta si apre la pagina non scorre. */
+html.is-opening,
+html.is-opening body { overflow: hidden; }

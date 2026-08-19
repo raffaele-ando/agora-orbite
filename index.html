@@ -10,19 +10,48 @@
 <link rel="preload" as="image" href="assets/img/agora-logo.png" fetchpriority="high">
 <link rel="preconnect" href="https://commons.wikimedia.org" crossorigin>
 <link rel="preconnect" href="https://upload.wikimedia.org" crossorigin>
+<script>
+/* Il velo d'apertura esiste solo se c'è JavaScript e il movimento è consentito:
+   senza JS la pagina resta accessibile e non c'è nulla da chiudere. */
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.documentElement.className += ' has-portal';
+}
+</script>
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
+<!-- Apertura: la porta del brandmark si allarga e scopre il sito -->
+<div class="portal" id="portal" aria-hidden="true">
+  <svg class="portal__svg" id="portal-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <path class="portal__veil" id="portal-veil" fill="#111111" fill-rule="evenodd"></path>
+    <!-- Tappo: tiene chiuso il vano finché la porta non inizia ad aprirsi,
+         così durante la posa il marchio si legge come nel logo. Il contorno
+         dello stesso colore copre la cucitura col bordo del velo. -->
+    <path class="portal__plug" id="portal-plug" fill="#111111" stroke="#111111" stroke-width="2"></path>
+    <g id="portal-bars" fill="#F4F1EA">
+      <path class="portal__bar" opacity="0"></path>
+      <path class="portal__bar" opacity="0"></path>
+      <path class="portal__bar" opacity="0"></path>
+      <path class="portal__bar" opacity="0"></path>
+      <path class="portal__bar" opacity="0"></path>
+    </g>
+  </svg>
+</div>
+
 <main class="scene" id="scene">
 
-  <!-- Tracciati delle orbite: puramente decorativi -->
-  <div class="orbits" id="orbits" aria-hidden="true">
-    <div class="orbit"></div>
-    <div class="orbit"></div>
-    <div class="orbit"></div>
-    <div class="orbit"></div>
-  </div>
+  <!-- Tracciati delle orbite: puramente decorativi. Un solo SVG invece di
+       quattro elementi: quattro bordi ellittici grandi come lo schermo
+       costringono il browser a ridisegnarli a ogni fotogramma. -->
+  <svg class="orbits" id="orbits" aria-hidden="true" focusable="false">
+    <g id="orbits-g" fill="none" stroke="#111111" stroke-dasharray="6 7">
+      <ellipse class="orbit" cx="0" cy="0"></ellipse>
+      <ellipse class="orbit" cx="0" cy="0"></ellipse>
+      <ellipse class="orbit" cx="0" cy="0"></ellipse>
+      <ellipse class="orbit" cx="0" cy="0"></ellipse>
+    </g>
+  </svg>
 
   <!-- Loghi e bandiere in orbita -->
   <div class="field" id="field">
@@ -74,6 +103,7 @@
 
 </main>
 
+<script src="assets/js/intro.js" defer></script>
 <script src="assets/js/orbits.js" defer></script>
 </body>
 </html>
