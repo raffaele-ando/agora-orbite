@@ -1,15 +1,23 @@
-/* Agorà — apertura del sito: le porte del brandmark, una dopo l'altra.
+/* Agorà — apertura del sito: un tunnel di porte.
  *
  * Il marchio al centro di "Agorà" è una pila di cinque archi concentrici:
- * cinque porte. All'ingresso le attraversiamo una alla volta. Su fondo crema,
- * ogni porta nasce piccola al centro, si allarga accelerando ed esce dallo
- * schermo; la successiva parte mentre la precedente è ancora in volo, così una
- * porta segue l'altra come in un corridoio.
+ * cinque porte. All'ingresso le attraversiamo una dopo l'altra, come in un
+ * corridoio: su fondo crema ogni porta arriva addosso — nasce piccola al
+ * centro, si allarga accelerando ed esce dallo schermo — e la successiva è già
+ * in arrivo dietro di lei.
  *
- * Le porte partono dalla più esterna alla più interna. L'ultima a partire è
- * quella interna, il vano vero del marchio: è la sua apertura a fare da
- * finestra sul sito. Cresce senza mai richiudersi e finisce l'apertura, e il
- * bordo della finestra coincide sempre col suo arco nero, che lo nasconde.
+ * Tutte e cinque le porte hanno la stessa forma: sono lo stesso oggetto a
+ * distanze diverse, ed è questo che le fa leggere come un tunnel. Con cinque
+ * archi di forma diversa la prospettiva risultava rovesciata, perché nel
+ * marchio il tratto è sempre spesso ~7,9 unità e quindi l'arco esterno lo ha
+ * sottile rispetto al proprio raggio e quello interno spesso: la porta più
+ * vicina sembrava la più lontana. La forma usata è l'arco più interno, il vano
+ * vero del marchio, quello con le gambe lunghe.
+ *
+ * La porta più lontana — l'ultima partita — è quella che porta la finestra sul
+ * sito: è il fondo del tunnel, e cresce mentre ci viene incontro finché non
+ * siamo fuori. Il bordo della finestra coincide sempre col suo arco nero, che
+ * lo nasconde: non si vede mai un taglio nel vuoto.
  *
  * La geometria non è ridisegnata a occhio: è misurata da assets/img/agora-logo.png
  * e riprodotta con archi di cerchio esatti (vedi assets/img/brandmark.md).
@@ -28,27 +36,26 @@
     { cx:  0.185, cy: -96.026, ro:  65.143, ri:  57.311 },
     { cx: -0.339, cy: -94.476, ro:  40.294, ri:  32.453 }
   ];
-  var LAUNCH = [0, 1, 2, 3, 4]; // ordine di partenza: dalla più esterna alla più interna
-  var DOOR = LAUNCH[LAUNCH.length - 1];   // l'ultima porta fa da finestra
-  var DOOR_DOWN = 91.2;         // quanto scende quel vano sotto il proprio centro
+  var DOOR = ARCHES[4];         // la forma di ogni porta del tunnel
+  var DOOR_DOWN = 91.2;         // quanto scende il suo vano sotto il proprio centro
+  var RINGS = 5;                // quante porte, come gli archi del marchio
 
   // --- tempi (ms) ----------------------------------------------------------
-  // Il rapporto fra la scala di una porta e quella della successiva è
+  // Il rapporto di scala fra una porta e quella dietro di lei è
   // (scalaFinale/scalaIniziale)^(T_STAGGER/T_TRAVEL): con questi valori vale
-  // circa 1,6, cioè in scena stanno tutte e cinque le porte annidate, con le
-  // proporzioni del marchio.
-  var T_STAGGER = 170;          // distanza fra una porta e la successiva
-  var T_TRAVEL = 1300;          // volo di ogni porta, dal centro fuori campo
+  // circa 1,55, cioè il tunnel tiene in scena tutte e cinque le porte.
+  var T_STAGGER = 152;          // distanza fra una porta e la successiva
+  var T_TRAVEL = 1350;          // volo di ogni porta, dal centro fuori campo
   var T_FADE = 260;             // comparsa di ogni porta
   var START_PX = 44;            // larghezza in pixel con cui una porta nasce
-  var TOTAL = T_STAGGER * (LAUNCH.length - 1) + T_TRAVEL + 60;
+  var TOTAL = T_STAGGER * (RINGS - 1) + T_TRAVEL + 60;
 
   var host = document.getElementById('portal');
   var svg  = document.getElementById('portal-svg');
   var veil = document.getElementById('portal-veil');
   var grad = document.getElementById('portal-bg');
   var barEls = host ? [].slice.call(host.querySelectorAll('.portal__bar')) : [];
-  if (!host || !svg || !veil || !grad || barEls.length !== LAUNCH.length) return;
+  if (!host || !svg || !veil || !grad || barEls.length !== RINGS) return;
 
   function finish() {
     if (!host) return;
@@ -127,26 +134,26 @@
     }
     var halfDiag = Math.sqrt(W * W + H * H) / 2;
 
-    // Le porte: la prima partita è la più grande, quindi va disegnata per
-    // ultima, sopra le altre.
+    // Le porte del tunnel. La prima partita è la più vicina, quindi la più
+    // grande: va disegnata per ultima, sopra le altre.
     var revealS = 0;
-    for (var n = 0; n < LAUNCH.length; n++) {
-      var a = ARCHES[LAUNCH[n]];
-      var el = barEls[LAUNCH.length - 1 - n];
+    for (var n = 0; n < RINGS; n++) {
+      var el = barEls[RINGS - 1 - n];
       var u = elapsed - n * T_STAGGER;
       if (u <= 0) continue;
-      var s = scaleAt(a, u, halfDiag);
-      if (LAUNCH[n] === DOOR) revealS = s;
+      var s = scaleAt(DOOR, u, halfDiag);
+      if (n === RINGS - 1) revealS = s;        // la più lontana porta la finestra
       if (barGone[n]) continue;
-      if (a.ri * s > halfDiag * 1.12) { el.setAttribute('d', ''); barGone[n] = true; continue; }
-      var b = builder(s, W / 2 - a.cx * s, H / 2 - a.cy * s);
-      el.setAttribute('d', archPath(a, b));
+      if (DOOR.ri * s > halfDiag * 1.12) { el.setAttribute('d', ''); barGone[n] = true; continue; }
+      var b = builder(s, W / 2 - DOOR.cx * s, H / 2 - DOOR.cy * s);
+      el.setAttribute('d', archPath(DOOR, b));
       el.setAttribute('opacity', clamp01(u / T_FADE).toFixed(3));
     }
 
-    // La finestra: il vano dell'arco più interno. Quando ha superato lo
-    // schermo il velo non serve più e la pagina torna interattiva.
-    var d = ARCHES[DOOR];
+    // La finestra è il vano della porta più lontana: il fondo del tunnel.
+    // Quando ha superato lo schermo il velo non serve più e la pagina torna
+    // interattiva, senza aspettare la fine.
+    var d = DOOR;
     if (revealS * d.ri > halfDiag && revealS * DOOR_DOWN > H / 2) {
       if (!released) {
         veil.setAttribute('d', '');

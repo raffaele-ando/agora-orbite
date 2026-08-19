@@ -53,28 +53,37 @@ la scritta, e il velo stesso resta invisibile.
 
 ## L'apertura
 
-All'ingresso il brandmark stesso apre il sito. La "o" di Agorà è una pila di
-cinque archi concentrici, cioè cinque porte, e le attraversiamo **una alla
-volta**: su fondo crema ogni porta nasce piccola al centro, si allarga
-accelerando ed esce dallo schermo; la successiva parte mentre la precedente è
-ancora in volo, così una porta segue l'altra come in un corridoio. Le porte
-sono nere, il fondo è quello della pagina.
+All'ingresso si attraversa un **tunnel di porte**. Il marchio al centro di
+Agorà è una pila di cinque archi concentrici, cioè cinque porte: su fondo crema
+ognuna arriva addosso — nasce piccola al centro, si allarga accelerando ed esce
+dallo schermo — e la successiva è già in arrivo dietro di lei. Poi si è fuori:
+il sito.
 
-Partono dalla più esterna alla più interna. L'ultima è il vano vero del
-marchio, ed è la sua apertura a fare da finestra sul sito: cresce senza mai
-richiudersi e completa lo scoprimento. Il bordo della finestra coincide sempre
-col suo arco nero, che lo nasconde — non si vede mai un taglio nel vuoto.
+Le cinque porte hanno **la stessa forma**, sono lo stesso oggetto a distanze
+diverse, ed è questo che le fa leggere come un tunnel. Usare i cinque archi
+diversi del marchio rovesciava la prospettiva: nel marchio il tratto è sempre
+spesso circa 7,9 unità, quindi l'arco esterno lo ha sottile rispetto al proprio
+raggio e quello interno spesso, e la porta più vicina finiva per sembrare la più
+lontana. La forma usata è l'arco più interno, il vano vero del marchio, quello
+con le gambe lunghe.
 
-Il rapporto di scala fra una porta e la successiva è circa 1,6: in scena stanno
-tutte e cinque annidate, con le proporzioni del marchio. Durata 2,1 s; un
-tocco, un tasto o uno scroll la accorciano, e la pagina torna interattiva
-appena la finestra ha coperto lo schermo, senza aspettare la fine.
+La porta più lontana — l'ultima partita — è quella che porta la finestra sul
+sito: è il fondo del tunnel, e cresce mentre ci viene incontro finché non siamo
+fuori. Il bordo della finestra coincide sempre col suo arco nero, che lo
+nasconde: non si vede mai un taglio nel vuoto. Il fondo non è un crema piatto ma
+la stessa sfumatura della scena, così nemmeno il velo si legge come un salto di
+tono: resta visibile solo il nero delle porte.
 
-La geometria del marchio non è ridisegnata a occhio: è **misurata** dal
-logotipo originale con precisione subpixel e riprodotta con archi di cerchio
-esatti — i numeri e il metodo sono in `assets/img/brandmark.md`, il vettore in
+Il rapporto di scala fra una porta e quella dietro di lei è circa 1,55: il
+tunnel tiene in scena tutte e cinque le porte. Durata 2,1 s; un tocco, un tasto
+o uno scroll la accorciano, e la pagina torna interattiva appena la finestra ha
+coperto lo schermo, senza aspettare la fine.
+
+La geometria non è ridisegnata a occhio: è **misurata** dal logotipo originale
+con precisione subpixel e riprodotta con archi di cerchio esatti — i numeri e il
+metodo sono in `assets/img/brandmark.md`, il vettore in
 `assets/img/brandmark.svg`. L'animazione genera i tracciati da quella
-geometria, quindi a qualunque scala ogni porta è un arco del logo.
+geometria, quindi a qualunque scala la porta è quella del logo.
 
 Senza JavaScript, o con `prefers-reduced-motion: reduce`, l'apertura non esiste
 affatto: la pagina si presenta già aperta.
