@@ -97,14 +97,6 @@ a:hover { color: var(--arancio-cupo); }
   box-shadow: 0 1px 3px rgba(17, 17, 17, 0.06);
 }
 
-/* Loghi bianchi (LUISS, La Statale, IULM): il marchio resta nel suo colore
-   originale, è il contenitore a diventare scuro perché sia leggibile. */
-.token--dark {
-  background: var(--inchiostro);
-  border-color: rgba(17, 17, 17, 0.35);
-  box-shadow: 0 1px 4px rgba(17, 17, 17, 0.18);
-}
-
 .token--logo img {
   display: block;
   width: auto;

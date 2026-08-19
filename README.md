@@ -13,7 +13,9 @@ assets/js/aperture/       le quattro aperture, una per file, come al loro commit
 assets/img/agora-logo.png
 assets/img/brandmark.svg  la "o" di Agorà come vettore autonomo
 assets/img/brandmark.md   geometria misurata del brandmark, con i numeri
-assets/loghi/             loghi degli atenei, originali, ottimizzati con svgo
+assets/loghi/             loghi degli atenei (originali + versioni corrette)
+assets/loghi/fonti/       marchi scaricati, sorgente delle versioni corrette
+strumenti/                rigenera le versioni corrette dei loghi
 project/                  bundle originale di Claude Design (sorgente del design)
 chats/                    trascrizioni della progettazione
 ```
@@ -150,13 +152,64 @@ mostra i chip del fallback, mentre la versione di prima ne mostra due.
 
 ## Loghi
 
-Vengono usati **i file originali caricati dall'utente** (`project/uploads/loghi_universita/`),
-senza alcuna modifica ai colori: sono passati solo da `svgo` (che rimuove metadati
-e accorcia i tracciati) e pesano complessivamente 441 KB invece di 918 KB.
+I file caricati dall'utente (`project/uploads/loghi_universita/`) sono il punto
+di partenza e restano nel repo intatti. Cinque però non andavano bene, e per
+tre di loro il chip era stato fatto nero per rimediare. Ora **i chip sono tutti
+bianchi** e i cinque file sono stati sostituiti o corretti. Le versioni nuove
+stanno accanto agli originali, non al loro posto, e `strumenti/loghi-positivi.js`
+le rigenera: rilanciandolo si riottengono gli stessi byte.
 
-LUISS, La Statale e IULM sono marchi bianchi: sul chip chiaro sarebbero
-invisibili. Invece di ricolorarli, **il contenitore diventa nero** (`.token--dark`)
-— si adatta il chip, non il marchio.
+### Cosa non andava, e cosa c'è ora
+
+| logo | il problema | come è stato risolto |
+| --- | --- | --- |
+| **UniTo** | era il **marchio vecchio**: sigillo nero e nome in nero. Dal giugno 2022 UniTo ha un marchio nuovo — sigillo rosso, nome in grigio con «UNI» e «TO» in rosso | `Unito-nuovo.svg`, dal marchio nuovo (export Illustrator, id `LOGO_UNITO_VERTICALE`, classi dichiarate `.st0{fill:#EA0029}` e `.st1{fill:#54565A}`). Nel file d'origine metà marchio non si vedeva: il `viewBox` era largo quanto il solo sigillo e un `clipPath` tagliava allo stesso riquadro. Misurato con `getBBox`, il disegno intero è 1334,6 × 543,2 |
+| **LUISS** | era **bianco** (la versione per l'header scuro del sito) e con la cornice sbagliata: `width`/`height` dicevano 176×72 mentre il `viewBox` è 348×64, così nel chip risultava piccolo | `LUISS-ufficiale.svg`: colore **blu #003A70**, quello del file ufficiale `Luiss_ML_POS_COL_RGB.png` (POS COL = positivo colore); non il nero. Il disegno è lo stesso: rese alla stessa altezza, le due sagome si sovrappongono al **90,5 %** |
+| **UniGe** | uno **scudo nero pieno**: il file usa le classi `st0`/`st1`/`st2` senza dichiararle, quindi tutto cadeva sul nero di default | `Unige-colore.svg`: il logotipo resta il vettore del file, al posto del disegno monocromatico va lo **stemma a colori** nella stessa casella (x −0,1 y 3,1 · 94,7 × 117, misurata con `getBBox`). I colori sono quelli del manuale: blu UniGe **#002677**, giallo **#F4DA40**, rosso **#C8102E**, grigio **#333333** |
+| **La Statale** | negativo bianco, più le ombre di un mockup Sketch che su bianco si vedevano come un alone grigio | `Unimi-positivo.svg`: 31 riempimenti da `#FFF` a `#1D1D1B`, via i due `<use fill="#000">` con filtro e il filtro esterno. Che il positivo sia scuro lo conferma il sigillo ufficiale trovato su GitHub, nero su trasparente |
+| **IULM** | disco bianco con «IULM» viola dentro e «università iulm» in bianco fuori: su bianco restava solo «IULM» | `IULM-positivo.png`: la scritta fuori dal disco passa al **viola del marchio stesso** (`#312783`, letto dal file); il disco diventa trasparente e l'immagine si ritaglia sul contenuto (1488×228 invece di 1600×836), altrimenti il chip dimensionava il logo su un disco invisibile |
+
+### Gli altri otto
+
+Polimi, Bocconi, Cattolica, Polito, Bicocca, Sapienza, UniSR e Humanitas
+**restano i file originali, senza un pixel toccato**. Portano già i propri colori
+dichiarati — #102C53, #0046AD, #00325C, #822433, #008FC4 + #C72635 + #F9C940,
+#007953 — e vengono dagli header dei siti degli atenei, quindi sono la versione
+in uso. Due verifiche fatte su tutti e tredici:
+
+- **cornici coerenti**: `width`/`height` contro `viewBox`, perché il difetto di
+  LUISS non fosse anche altrove. Nessun altro caso.
+- **classi orfane**: `Polito.svg` (`cls-1`) e `Unito.svg` (`st0`, `st1`) usano
+  classi non dichiarate come UniGe. Verificato disegnando le varianti: lì il
+  nero di default è **giusto** — nel logo Polito il marchio è nero, e nel vecchio
+  UniTo mettere `st1` bianco spezzava il logotipo in «UNI / TO». Il difetto
+  visibile era solo quello di UniGe.
+
+Su Bicocca resta un limite: il file è un raster in scala di grigi con
+ventidue tonalità di grigio da compressione, non un vettore. Non ne ho trovato
+uno migliore autentico (vedi sotto).
+
+### Perché non i file scaricati dai siti ufficiali
+
+L'uscita di rete di questo ambiente passa da un proxy che consente **solo GitHub
+e il registro npm**. `upload.wikimedia.org`, `commons.wikimedia.org`, Brandfetch
+e i siti degli atenei rispondono `403`, e lo stesso vale per il recupero di
+pagine tramite gli strumenti dell'assistente: la ricerca sul web funziona (ed è
+da lì che vengono i colori del manuale UniGe e la notizia del marchio UniTo
+nuovo), ma i file no. Quello che si è potuto scaricare viene da repository
+GitHub, ed è tenuto in `assets/loghi/fonti/`:
+
+| file | da dove | cosa è |
+| --- | --- | --- |
+| `fonti/unito-marchio.svg` | `eduardz1/UniTO-typst-template` | il marchio UniTo nuovo, vettoriale, con i colori dichiarati |
+| `fonti/unige-stemma.png` | `barbaLab/master-thesis-template` | lo stemma UniGe a colori, 786×968, palette identica a quella del manuale |
+
+Serviti anche come riscontro, senza finire nel sito: `Luiss_ML_POS_COL_RGB.png`
+(in `gianmarchioni/Luiss_thesis_template`) per il blu LUISS, e il sigillo della
+Statale a 1200 px (in `GiacomoBotti/UniMI_template_pack`) per il nero della
+Statale. Di IULM, Bicocca e Cattolica non esiste nulla di autentico raggiungibile.
+
+I tredici file in pagina pesano 433 KB, 186 KB con gzip.
 
 ## Bandiere
 
@@ -189,10 +242,14 @@ gli `src` in `index.html`.
   lato: a 320 px tutti e cinque i tasti restano visibili e cliccabili (26 px di
   altezza minima).
 - Senza JavaScript la pagina resta leggibile: marchio in alto e loghi incolonnati sotto.
-- 95 KB al primo caricamento su telefono (i token non ancora in scena sono lazy).
+- Al primo caricamento arrivano **50 KB su telefono** e 148 KB su desktop (fino
+  al momento in cui parte l'apertura): i token non ancora in scena sono `lazy`.
+  Quando tutti e 33 sono passati davanti all'occhio si arriva a circa 630 KB,
+  di cui 547 KB di immagini.
 
-Se il server supporta gzip o brotli, i loghi SVG scendono da 441 KB a circa 110 KB:
-vale la pena attivarli.
+I 13 file dei loghi in pagina pesano 433 KB, che con gzip diventano 186 KB: se
+il server sa comprimere, vale la pena attivarlo. Gli SVG sono la parte che ci
+guadagna — i due PNG (Bicocca e IULM) sono già compressi.
 
 ---
 
