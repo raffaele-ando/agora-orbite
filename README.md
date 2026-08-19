@@ -53,37 +53,41 @@ la scritta, e il velo stesso resta invisibile.
 
 ## L'apertura
 
-All'ingresso si attraversa un **tunnel di porte**. Il marchio al centro di
-Agorà è una pila di cinque archi concentrici, cioè cinque porte: su fondo crema
-ognuna arriva addosso — nasce piccola al centro, si allarga accelerando ed esce
-dallo schermo — e la successiva è già in arrivo dietro di lei. Poi si è fuori:
-il sito.
+All'ingresso si attraversa un **tunnel fatto dai cinque archi del marchio**. Su
+fondo crema ogni porta arriva addosso — nasce piccola al centro, si allarga
+accelerando ed esce dallo schermo — e le altre sono già in arrivo dietro di lei.
+Poi si è fuori: il sito.
 
-Le cinque porte hanno **la stessa forma**, sono lo stesso oggetto a distanze
-diverse, ed è questo che le fa leggere come un tunnel. Usare i cinque archi
-diversi del marchio rovesciava la prospettiva: nel marchio il tratto è sempre
-spesso circa 7,9 unità, quindi l'arco esterno lo ha sottile rispetto al proprio
-raggio e quello interno spesso, e la porta più vicina finiva per sembrare la più
-lontana. La forma usata è l'arco più interno, il vano vero del marchio, quello
-con le gambe lunghe.
+**L'ordine di profondità non è arbitrario.** Nel marchio il tratto è sempre
+spesso circa 7,9 unità, quindi l'arco interno lo ha spesso rispetto al proprio
+raggio (7,9 su 36) e quello esterno sottile (7,9 su 140). Poiché un tratto
+spesso si legge come "vicino", la porta più vicina deve essere l'arco più interno
+e la più lontana l'arco più esterno: così raggio e spessore calano insieme con la
+distanza. Con l'ordine opposto la prospettiva risulta rovesciata e la porta
+grande sembra la più lontana.
 
-La porta più lontana — l'ultima partita — è quella che porta la finestra sul
-sito: è il fondo del tunnel, e cresce mentre ci viene incontro finché non siamo
-fuori. Il bordo della finestra coincide sempre col suo arco nero, che lo
-nasconde: non si vede mai un taglio nel vuoto. Il fondo non è un crema piatto ma
-la stessa sfumatura della scena, così nemmeno il velo si legge come un salto di
-tono: resta visibile solo il nero delle porte.
+Tutte le porte nascono con lo stesso raggio in pixel e crescono alla stessa
+velocità relativa: è la scala di ciascun arco a essere ricavata dal proprio
+raggio, non il contrario. Così l'annidamento resta uniforme come in prospettiva
+(rapporto circa 1,6 fra una porta e quella dietro) e ogni porta conserva le
+proporzioni che ha nel logo.
 
-Il rapporto di scala fra una porta e quella dietro di lei è circa 1,55: il
-tunnel tiene in scena tutte e cinque le porte. Durata 2,1 s; un tocco, un tasto
-o uno scroll la accorciano, e la pagina torna interattiva appena la finestra ha
-coperto lo schermo, senza aspettare la fine.
+Il sito si vede **in fondo al tunnel**: la finestra segue il vano della porta più
+lontana, quindi i contenuti compaiono al centro, inquadrati dalle porte più
+vicine, e crescono finché non si è usciti. Il bordo è sfumato invece che netto —
+il vano dell'arco più esterno è una fessura bassa e larga, e un ritaglio secco su
+quella forma lascerebbe un bordo visibile dove i chip vengono tagliati. La
+trasparenza sta negli stop del gradiente del velo, non in una maschera SVG: una
+maschera a schermo intero costa un ridisegno per fotogramma e dimezza il frame
+rate.
+
+Durata 2,1 s; un tocco, un tasto o uno scroll la accorciano, e la pagina torna
+interattiva appena la finestra ha coperto lo schermo, senza aspettare la fine.
 
 La geometria non è ridisegnata a occhio: è **misurata** dal logotipo originale
 con precisione subpixel e riprodotta con archi di cerchio esatti — i numeri e il
 metodo sono in `assets/img/brandmark.md`, il vettore in
-`assets/img/brandmark.svg`. L'animazione genera i tracciati da quella
-geometria, quindi a qualunque scala la porta è quella del logo.
+`assets/img/brandmark.svg`.
 
 Senza JavaScript, o con `prefers-reduced-motion: reduce`, l'apertura non esiste
 affatto: la pagina si presenta già aperta.

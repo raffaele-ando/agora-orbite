@@ -21,18 +21,24 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
 </head>
 <body>
 
-<!-- Apertura: le porte del brandmark sfilano una dopo l'altra e scoprono il sito -->
+<!-- Apertura: un tunnel fatto dai cinque archi del marchio -->
 <div class="portal" id="portal" aria-hidden="true">
   <svg class="portal__svg" id="portal-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
     <defs>
-      <!-- Lo stesso fondo della scena: il bordo della finestra non si vede
-           come un salto di tono, resta visibile solo il nero delle porte. -->
+      <!-- Il velo. Il colore riprende la sfumatura dello sfondo della scena, così
+           non si legge come un salto di tono: resta visibile solo il nero delle
+           porte. La trasparenza sta negli stop centrali, spostati da JS: seguono
+           il vano della porta più lontana, cioè il fondo del tunnel. Il bordo è
+           sfumato, così il taglio dei contenuti non si vede. Niente maschera
+           SVG: costa un ridisegno a schermo intero per fotogramma. -->
       <radialGradient id="portal-bg" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1">
-        <stop offset="0" stop-color="#F4F1EA"/>
-        <stop offset="1" stop-color="#EAE0D0"/>
+        <stop offset="0" stop-color="#F4F1EA" stop-opacity="0"/>
+        <stop offset="0" stop-color="#F4F1EA" stop-opacity="0"/>
+        <stop offset="0" stop-color="#F4F1EA" stop-opacity="1"/>
+        <stop offset="1" stop-color="#EAE0D0" stop-opacity="1"/>
       </radialGradient>
     </defs>
-    <path class="portal__veil" id="portal-veil" fill="url(#portal-bg)" fill-rule="evenodd"></path>
+    <rect class="portal__veil" x="0" y="0" width="100%" height="100%" fill="url(#portal-bg)"></rect>
     <g id="portal-bars" fill="#111111">
       <path class="portal__bar"></path>
       <path class="portal__bar"></path>
