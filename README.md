@@ -7,8 +7,9 @@ dipendenza da CDN.
 ```
 index.html
 assets/css/style.css
-assets/js/intro.js        apertura: la porta del brandmark scopre il sito
 assets/js/orbits.js       motore delle orbite (vanilla JS, ~9 KB)
+assets/js/intro.js        selettore: sceglie un'apertura, la mette in scena
+assets/js/aperture/       le quattro aperture, una per file, come al loro commit
 assets/img/agora-logo.png
 assets/img/brandmark.svg  la "o" di Agorà come vettore autonomo
 assets/img/brandmark.md   geometria misurata del brandmark, con i numeri
@@ -51,7 +52,37 @@ Il velo dietro al marchio riprende esattamente lo stesso sfondo della scena e lo
 sfuma con una maschera: i token che passano dietro spariscono prima di toccare
 la scritta, e il velo stesso resta invisibile.
 
-## L'apertura
+## Le aperture
+
+Le aperture provate durante la progettazione sono **tutte in pagina**, e una
+barra in alto passa da una all'altra. Non sono riscritture: il corpo di ogni
+file in `assets/js/aperture/` è il codice del commit in cui quel design era in
+produzione, riportato senza modifiche, e il markup del velo che si aspetta sta
+nei `<template data-aperture="…">` di `index.html`, anch'esso identico
+all'originale. `assets/js/intro.js` non anima nulla: sceglie un design, gli mette
+in pagina il suo markup, lo avvia e costruisce la barra. Il cambio ricarica la
+pagina — è esattamente quello che vede chi entra — e così il ciclo di animazione
+del design precedente non resta a girare a vuoto. La scelta si ricorda in
+`localStorage`; alla prima visita parte **Tunnel · 5 archi**.
+
+| barra | commit | com'è |
+| --- | --- | --- |
+| **Marchio** | `271f3f4` | Fondo scuro, archi crema. Il marchio cresce fino alla sua misura, resta un istante, poi il vano della sua porta si allarga e scopre il sito. |
+| **Sequenza** | `c37e886` | Fondo crema, porte nere. Le cinque porte partono una dopo l'altra, dalla più esterna alla più interna; l'ultima scopre il sito. |
+| **Tunnel · 1 porta** | `8d11425` | Un tunnel di porte tutte della stessa forma: il vano del marchio ripetuto a distanze diverse. |
+| **Tunnel · 5 archi** | `77bcd1d` | Il tunnel fatto da tutti e cinque gli archi del marchio, con la profondità ordinata perché la prospettiva funzioni. |
+
+Che siano davvero le aperture di allora e non delle imitazioni è verificato in
+quattro modi indipendenti: lo SHA-256 del corpo di ogni file coincide con quello
+dell'`intro.js` del suo commit; lo SHA-256 di ogni `<template>` coincide con
+quello del markup di allora; sostituendo `requestAnimationFrame` con una coda a
+tempo deterministico, la geometria generata (tracciati, opacità, gradiente,
+`viewBox`) è **identica in tutti i 157 fotogrammi**, a 900×600 e a 390×844, per
+tutte e quattro; e gli screenshot presi a quel tempo deterministico coincidono
+(differenza media 0,000%; restano dai 14 ai 29 pixel su 837 000, tutti
+nell'antialiasing di un logo della pagina sotto, nessuno nell'apertura).
+
+### Come funziona quella predefinita
 
 All'ingresso si attraversa un **tunnel fatto dai cinque archi del marchio**. Su
 fondo crema ogni porta arriva addosso — nasce piccola al centro, si allarga
@@ -81,8 +112,9 @@ trasparenza sta negli stop del gradiente del velo, non in una maschera SVG: una
 maschera a schermo intero costa un ridisegno per fotogramma e dimezza il frame
 rate.
 
-Durata 2,1 s; un tocco, un tasto o uno scroll la accorciano, e la pagina torna
-interattiva appena la finestra ha coperto lo schermo, senza aspettare la fine.
+Durata 2,1 s; un tocco, un tasto o uno scroll la accorciano (con un click
+l'apertura finisce in circa 0,8 s), e la pagina torna interattiva appena la
+finestra ha coperto lo schermo, senza aspettare la fine.
 
 La geometria non è ridisegnata a occhio: è **misurata** dal logotipo originale
 con precisione subpixel e riprodotta con archi di cerchio esatti — i numeri e il
@@ -90,7 +122,8 @@ metodo sono in `assets/img/brandmark.md`, il vettore in
 `assets/img/brandmark.svg`.
 
 Senza JavaScript, o con `prefers-reduced-motion: reduce`, l'apertura non esiste
-affatto: la pagina si presenta già aperta.
+affatto: la pagina si presenta già aperta. In quel caso non compare nemmeno la
+barra, perché non c'è niente da mettere in scena.
 
 ## Loghi
 
@@ -115,15 +148,23 @@ gli `src` in `index.html`.
 ## Accessibilità e prestazioni
 
 - 60 fps stabili anche con CPU rallentata 6×, sia durante l'apertura sia in
-  regime (misurati a 1920×1080 con densità 2×: mediana e 95° percentile a
-  16,7 ms). Un solo ciclo `requestAnimationFrame` che scrive esclusivamente
-  `transform` e `opacity`, senza letture del layout.
+  regime, con tutte e quattro le aperture (mediana a 16,7 ms; 95° percentile a
+  16,8 ms passati i primi 300 ms). Un solo ciclo `requestAnimationFrame` che
+  scrive esclusivamente `transform` e `opacity`, senza letture del layout.
+- Resta **un solo fotogramma lungo** al primo disegno — circa 0,6 s su un
+  telefono con CPU rallentata 6× — speso in parsing e decodifica delle immagini.
+  C'era già prima del selettore, con gli stessi valori: i quattro file delle
+  aperture (37 KB in tutto) non lo peggiorano in modo misurabile.
 - I quattro tracciati delle orbite stanno in **un solo SVG**, senza
   `will-change`. Come quattro elementi con bordo ellittico e `will-change`
   erano quattro texture GPU grandi come lo schermo: bastava un velo sopra per
   far scendere il frame rate a 20 fps.
 - L'animazione si ferma quando la scheda non è visibile.
-- `prefers-reduced-motion: reduce` → scena statica, tutti i token al loro posto.
+- `prefers-reduced-motion: reduce` → scena statica, tutti i token al loro posto,
+  nessuna apertura e nessuna barra.
+- La barra del selettore va a capo su telefono verticale invece di scorrere di
+  lato: a 320 px tutti e cinque i tasti restano visibili e cliccabili (26 px di
+  altezza minima).
 - Senza JavaScript la pagina resta leggibile: marchio in alto e loghi incolonnati sotto.
 - 95 KB al primo caricamento su telefono (i token non ancora in scena sono lazy).
 

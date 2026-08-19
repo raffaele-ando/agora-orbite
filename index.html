@@ -16,11 +16,90 @@
 if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
   document.documentElement.className += ' has-portal';
 }
+/* Registro dei design d'apertura: i file in assets/js/aperture/ si iscrivono
+   qui, il selettore in assets/js/intro.js ne avvia uno. */
+window.AgoraAperture = { items: {}, register: function (id, fn) { this.items[id] = fn; } };
 </script>
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
+<!-- I quattro design d'apertura. Ogni template è il markup del velo così
+     com'era al proprio commit; il selettore ne clona uno e avvia lo script
+     omonimo in assets/js/aperture/. -->
+<!-- «Marchio» — markup del velo al commit 271f3f4, riportato senza modifiche -->
+<template data-aperture="marchio">
+<!-- Apertura: la porta del brandmark si allarga e scopre il sito -->
+<div class="portal" id="portal" aria-hidden="true">
+  <svg class="portal__svg" id="portal-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <path class="portal__veil" id="portal-veil" fill="#111111" fill-rule="evenodd"></path>
+    <!-- Tappo: tiene chiuso il vano finché la porta non inizia ad aprirsi,
+         così durante la posa il marchio si legge come nel logo. Il contorno
+         dello stesso colore copre la cucitura col bordo del velo. -->
+    <path class="portal__plug" id="portal-plug" fill="#111111" stroke="#111111" stroke-width="2"></path>
+    <g id="portal-bars" fill="#F4F1EA">
+      <path class="portal__bar" opacity="0"></path>
+      <path class="portal__bar" opacity="0"></path>
+      <path class="portal__bar" opacity="0"></path>
+      <path class="portal__bar" opacity="0"></path>
+      <path class="portal__bar" opacity="0"></path>
+    </g>
+  </svg>
+</div>
+</template>
+
+<!-- «Sequenza» — markup del velo al commit c37e886, riportato senza modifiche -->
+<template data-aperture="sequenza">
+<!-- Apertura: le porte del brandmark sfilano una dopo l'altra e scoprono il sito -->
+<div class="portal" id="portal" aria-hidden="true">
+  <svg class="portal__svg" id="portal-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <defs>
+      <!-- Lo stesso fondo della scena: il bordo della finestra non si vede
+           come un salto di tono, resta visibile solo il nero delle porte. -->
+      <radialGradient id="portal-bg" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1">
+        <stop offset="0" stop-color="#F4F1EA"/>
+        <stop offset="1" stop-color="#EAE0D0"/>
+      </radialGradient>
+    </defs>
+    <path class="portal__veil" id="portal-veil" fill="url(#portal-bg)" fill-rule="evenodd"></path>
+    <g id="portal-bars" fill="#111111">
+      <path class="portal__bar"></path>
+      <path class="portal__bar"></path>
+      <path class="portal__bar"></path>
+      <path class="portal__bar"></path>
+      <path class="portal__bar"></path>
+    </g>
+  </svg>
+</div>
+</template>
+
+<!-- «Tunnel · una porta» — markup del velo al commit 8d11425, riportato senza modifiche -->
+<template data-aperture="tunnel-unico">
+<!-- Apertura: le porte del brandmark sfilano una dopo l'altra e scoprono il sito -->
+<div class="portal" id="portal" aria-hidden="true">
+  <svg class="portal__svg" id="portal-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <defs>
+      <!-- Lo stesso fondo della scena: il bordo della finestra non si vede
+           come un salto di tono, resta visibile solo il nero delle porte. -->
+      <radialGradient id="portal-bg" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1">
+        <stop offset="0" stop-color="#F4F1EA"/>
+        <stop offset="1" stop-color="#EAE0D0"/>
+      </radialGradient>
+    </defs>
+    <path class="portal__veil" id="portal-veil" fill="url(#portal-bg)" fill-rule="evenodd"></path>
+    <g id="portal-bars" fill="#111111">
+      <path class="portal__bar"></path>
+      <path class="portal__bar"></path>
+      <path class="portal__bar"></path>
+      <path class="portal__bar"></path>
+      <path class="portal__bar"></path>
+    </g>
+  </svg>
+</div>
+</template>
+
+<!-- «Tunnel · cinque archi» — markup del velo al commit 77bcd1d, riportato senza modifiche -->
+<template data-aperture="tunnel-archi">
 <!-- Apertura: un tunnel fatto dai cinque archi del marchio -->
 <div class="portal" id="portal" aria-hidden="true">
   <svg class="portal__svg" id="portal-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -48,6 +127,7 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
     </g>
   </svg>
 </div>
+</template>
 
 <main class="scene" id="scene">
 
@@ -113,6 +193,10 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
 
 </main>
 
+<script src="assets/js/aperture/marchio.js" defer></script>
+<script src="assets/js/aperture/sequenza.js" defer></script>
+<script src="assets/js/aperture/tunnel-unico.js" defer></script>
+<script src="assets/js/aperture/tunnel-archi.js" defer></script>
 <script src="assets/js/intro.js" defer></script>
 <script src="assets/js/orbits.js" defer></script>
 </body>
