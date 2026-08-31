@@ -30,7 +30,7 @@ jobs:
         run: |
           rm -rf agoracheck/public/orbite
           mkdir -p agoracheck/public/orbite
-          rsync -a --exclude='.git' agora-orbite/ agoracheck/public/orbite/
+          rsync -a --exclude='.git' --exclude='.github' agora-orbite/ agoracheck/public/orbite/
 
       - name: Commit e push su AgoraCheck
         run: |
